@@ -1,1 +1,1 @@
-web: gunicorn renewableprojects.wsgi
+web: gunicorn api.wsgi
