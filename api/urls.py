@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import Createproject, GetDealDetails
+from .views import Createproject, GetDealDetails, CreateDeal
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/project/', Createproject, name='create-project'),
     path('api/deal/<int:deal_id>/', GetDealDetails, name='deal-details'),
+    path('api/create-deal/', CreateDeal, name='create-deal'),
 ]

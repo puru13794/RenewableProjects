@@ -1,6 +1,7 @@
 
 from rest_framework import serializers
 from .models import Deal, Project, DealProject
+# import pdb
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,15 +36,20 @@ class DealSerializer(serializers.ModelSerializer):
         return total_amount
 
     def create(self, validated_data):
-        projects_data = validated_data.pop('projects', [])
+        dealprojects_data = validated_data.pop('dealproject_set', [])
         deal = Deal.objects.create(**validated_data)
-        for project_data in projects_data:
-            project_serializer = ProjectSerializer(data=project_data['project'])
+
+        for dealproject_data in dealprojects_data:
+            project_data = dealproject_data.pop('project', {})
+            project_serializer = ProjectSerializer(data=project_data)
+            # pdb.set_trace()
+
             if project_serializer.is_valid():
                 project = project_serializer.save()
-                DealProject.objects.create(deal=deal, project=project, tax_credit_transfer_rate=project_data['tax_credit_transfer_rate'])
+                DealProject.objects.create(deal=deal,project=project,tax_credit_transfer_rate=dealproject_data.get('tax_credit_transfer_rate'))
             else:
                 # Handle validation errors for projects if needed
                 pass
+
         return deal
         
