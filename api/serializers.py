@@ -9,17 +9,30 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class DealProjectSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
+    
 
     class Meta:
         model = DealProject
         fields = ['id', 'project', 'tax_credit_transfer_rate']
 
+    
+
 class DealSerializer(serializers.ModelSerializer):
     projects = DealProjectSerializer(many=True, source='dealproject_set')
+    tax_credit_transfer_amount = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Deal
-        fields = ['id', 'name', 'projects']
+        fields = ['id', 'name', 'projects', 'tax_credit_transfer_amount']
+
+    def get_tax_credit_transfer_amount(self, instance):
+        total_amount = 0
+        for deal_project in instance.dealproject_set.all():
+            fmv = float(deal_project.project.fmv)
+            tax_credit_transfer_rate = float(deal_project.tax_credit_transfer_rate)
+            total_amount += fmv * 0.3 * tax_credit_transfer_rate
+        return total_amount
 
     def create(self, validated_data):
         projects_data = validated_data.pop('projects', [])
@@ -33,3 +46,4 @@ class DealSerializer(serializers.ModelSerializer):
                 # Handle validation errors for projects if needed
                 pass
         return deal
+        
